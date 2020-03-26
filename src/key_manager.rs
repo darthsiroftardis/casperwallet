@@ -1,24 +1,19 @@
-use openssl::error::ErrorStack;
 use openssl::symm::Cipher;
-use std::io::prelude;
-use std::io::BufWriter;
-use std::fs::File;
+use openssl::ec::EcKey;
+use openssl::pkey::Private;
 
 use super::storage;
 
 pub mod key_generator;
 
-
-
-pub fn store_key(passphrase: &[u8]) -> std::io::Result<()> {
-	let key = match key_generator::generate_account_key() {
-		Ok(ec_key) => ec_key,
-		Err(why) => panic!("{:?}", why.to_string()),
-	};
+pub fn store_key(passphrase: &[u8], key: &EcKey<Private>, key_name: &String) -> std::io::Result<()> {
 	let cipher = Cipher::aes_256_gcm();
 	let key_bytes = match key.private_key_to_pem_passphrase(cipher, passphrase) {
 		Ok(bytes) => bytes,
 		Err(why) => panic!("{:?}", why.to_string()),
 	};
-	storage::store_to_disk(&key_bytes)
+	storage::store_to_disk(&key_bytes,key_name)
 }
+
+
+
