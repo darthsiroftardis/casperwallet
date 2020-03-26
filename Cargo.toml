@@ -12,5 +12,5 @@ path= "src/lib.rs"
 
 
 [dependencies]
-ed25519-dalek = "0.9.1"
-ring = "0.16.11"
+openssl = "0.10.28"
+hex = "0.4.2"
