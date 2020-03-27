@@ -1,31 +1,17 @@
 use casperwallet::account_manager::account_user::User;
 use casperwallet::account_manager;
-use dirs;
+use casperwallet::session_manager;
+
+
 use std::env;
+use std::path::PathBuf;
+
 
 fn main() {
-/*	let mut directory = match dirs::home_dir() {
-		Some(path) => String::from(path.to_str().unwrap()),
-		None => panic!("Error"),
-	};
-	directory.push_str(&String::from("/casperkeys"));
-	
-	match account_manager::list_users(&directory) {
-		Ok(_) => println!("Keys found"),
-		Err(_) => println!("No users found"),
-	};
-*/
-
-	let mut user = User::new("ben_dover_1".to_string(),&"testpassphrase".as_bytes());
-	println!("{:?}", user.name);
+	let mut user = User::new(String::from("alice"));
 	user.add_transaction_key(String::from("FirstKey"));
 	user.add_transaction_key(String::from("SecondKey"));
-	//user.list_transaction_keys();
-
-	let test = user.load_transaction_key();
-
-
-	println!("{:?}", test);
-	
-
+	let path: PathBuf = std::env::current_dir().unwrap();
+	let key = account_manager::load_user_account_key(&user.name,&path);
+	println!("{:?}", key);
 }

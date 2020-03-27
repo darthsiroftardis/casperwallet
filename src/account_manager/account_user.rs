@@ -6,26 +6,26 @@ use super::key_manager;
 
 pub struct User {
 	pub name: 				String,
-		account_key: 		EcKey<Private>,
+	pub	account_key: 		EcKey<Private>,
 		transaction_keys: 	Vec<TxKey>,
 }
 
-struct TxKey {
+pub struct TxKey {
 	pub name: 	String,
 		key:	EcKey<Private>,
 }
 
 impl User {
 	// add code here
-	pub fn new(name: String, passphrase: &[u8]) -> User {
+	pub fn new(name: String) -> User {
 		let account_key = match key_generator::generate_account_key() {
 			Ok(ec_key) => ec_key,
 			Err(why) => panic!("{:?}", why.to_string()),
 		};
 		let transaction_keys = vec![];
-		match key_manager::store_account_key(passphrase,&account_key,&name) {
+		match key_manager::store_account_key(&account_key,&name) {
 			Ok(_) => println!("User account created and stored"),
-			Err(why) => panic!("{:?}", why.to_string()),
+			Err(why) => println!("User already exists"),
 		};
 		User {
 			name,
@@ -57,16 +57,9 @@ impl User {
 		}
 	}
 
-	pub fn load_account_key(self) {
-
-	}
-
 	pub fn load_transaction_key(self) -> EcKey<Private> {
 		let mut key_path = self.name.clone();
 		key_path.push_str(&String::from("/FirstKey.key"));
 		key_manager::load_transaction_key(&key_path).unwrap()
 	}
-
-
-
 }

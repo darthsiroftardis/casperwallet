@@ -1,16 +1,12 @@
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::fs;
 use std::io::prelude::*;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::env;
 
 
-pub fn load_file(key_name: &String) -> Vec<u8> {
-	match env::current_dir() {
-		Ok(path) => println!("{:?}", path),
-		Err(e) => panic!("{:?}", e),
-	};
-	println!("{:?}", key_name);
+pub fn load_file(key_name: &PathBuf) -> Vec<u8> {
 	match fs::read(key_name) {
 		Ok(bytes) => bytes,
 		Err(why) => panic!("{:?}", why.to_string()),
@@ -18,12 +14,7 @@ pub fn load_file(key_name: &String) -> Vec<u8> {
 }
 
 pub fn store_to_file(bytes: &[u8],name: String) -> std::io::Result<()> {
-	let path = Path::new(&name);
-	let _display = path.display();
-	let mut file = match File::create(&path) {
-		Err(why) => panic!("{:?}", why.to_string()),
-		Ok(file) => file,
-	};
+	let mut file = OpenOptions::new().create(true).write(true).open(name).expect("file already exists");
 	file.write_all(bytes)
 }
 
