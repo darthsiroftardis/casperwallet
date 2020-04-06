@@ -1,16 +1,28 @@
-use openssl::ec::*;
-use openssl::nid::Nid;
-use openssl::error::ErrorStack;
-use openssl::pkey::Private;
+use rand::rngs::OsRng;
+use sha2::Sha512;
+use ed25519_dalek::Keypair;
+use ed25519_dalek::Signature;
+use ed25519_dalek::SECRET_KEY_LENGTH;
 
 
-
-pub fn generate_account_key() -> Result<EcKey<Private>,ErrorStack> {
-	let group = EcGroup::from_curve_name(Nid::SECP256K1).unwrap();
-	EcKey::<Private>::generate(&group)
+//Key Generation function to create a Ed25519 Secret Key
+pub fn generate_keypair() -> ed25519_dalek::Keypair {
+	let mut csprng = OsRng{};
+	let keypair: Keypair = Keypair::generate(&mut csprng);
+	keypair
 }
 
-pub fn generate_tx_key() -> Result<EcKey<Private>,ErrorStack> {
-	let group = EcGroup::from_curve_name(Nid::SECP256K1).unwrap();
-	EcKey::<Private>::generate(&group)
+#[cfg(test)]
+mod tests {
+	use super::*;
+	#[test]
+	fn check_key_signing() {
+		let key: Keypair = generate_keypair();
+		let test: &[u8] = b"Test";
+		let sign: Signature = key.sign(test);
+		assert!(key.verify(test,&sign).is_ok());
+	}
+
 }
+
+
