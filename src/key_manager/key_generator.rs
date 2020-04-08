@@ -1,8 +1,6 @@
 use rand::rngs::OsRng;
-use sha2::Sha512;
 use ed25519_dalek::Keypair;
-use ed25519_dalek::Signature;
-use ed25519_dalek::SECRET_KEY_LENGTH;
+
 
 
 //Key Generation function to create a Ed25519 Secret Key
