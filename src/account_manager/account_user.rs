@@ -3,7 +3,7 @@ use serde::{Serialize,Deserialize};
 use std::collections::HashMap;
 use super::key_manager::key_generator;
 
-#[derive(Serialize, Deserialize, Debug)]
+
 pub struct User {
 	pub name: 					String,
 	pub account_keypair:		Keypair,

@@ -27,7 +27,9 @@ fn main() {
 
 	let user = User::new(String::from("Bob"));
 
-	storage::store_user(&user, &collection);
+	let user_entry = storage::UserEntry::new(user);
+
+	storage::store_user(&user_entry, &collection);
 	storage::delete_user(String::from("Bob"),&collection);
 
 
