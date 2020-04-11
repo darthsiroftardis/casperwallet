@@ -30,6 +30,8 @@ fn main() {
 	let user_entry = storage::UserEntry::new(user);
 
 	storage::store_user(&user_entry, &collection);
+	let u = storage::load_user(String::from("Bob"),&collection);
+	println!("{:?}", u.account_keypair);
 	storage::delete_user(String::from("Bob"),&collection);
 
 

@@ -10,6 +10,18 @@ pub fn generate_keypair() -> ed25519_dalek::Keypair {
 	keypair
 }
 
+pub fn recover_keypair(secret_key_bytes: &[u8]) -> Keypair {
+	let secret = SecretKey::from_bytes(secret_key_bytes).unwrap();
+	let public = PublicKey::from(&secret);
+	Keypair {
+		secret,
+		public,
+	}
+}
+
+
+
+
 #[cfg(test)]
 mod tests {
 	use super::*;
