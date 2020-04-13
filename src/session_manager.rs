@@ -1,13 +1,22 @@
-use mongodb::{Client, options::ClientOptions};
+use mongodb::{Client, options::ClientOptions,Collection};
+use super::account_manager::account_user::User;
+use super::storage;
+use std::process;
+use std::io::{stdin,stdout,Write};
 
-
-
-enum Commands {
+pub enum Commands {
 	Create(String),
 	Load(String),
-	Delete(String)
-	Quit
+	Delete(String),
+	Quit,
+	Invalid,
 }
+
+pub enum UserCommands {
+	Sign,
+	AddTransactionKey(String),
+}
+
 
 pub fn start_session() -> mongodb::Collection {
 	println!("Attempting to connect to database");
@@ -29,19 +38,53 @@ pub fn start_session() -> mongodb::Collection {
 	println!("Connected to database");
 
 	return collection;
-
 }
 
-pub fn run_session(command: Commands) {
+
+pub fn start_user_session(user: &mut User) {
 	loop {
-		if command == Commands::Quit {break;}
-		execute_command(collection,command);
+		println!("Started session for {}", user.name);
+		print!("Enter an option\n[1]Sign\n[2]Add transaction key\n[3]List transaction key\n[4]Return\n[Input]:");
+		stdout().flush().unwrap();
+		let mut input = String::new();
+		stdin().read_line(&mut input).unwrap();
+		let user_option = input.trim();
+		let user_option: u32 = match user_option.parse(){
+			Ok(num) => num,
+			Err(_e) => 0,
+		};
+		match user_option {
+			1 => println!("Signing"),
+			2 => user.create_new_transaction_key(String::from("NewKey")),
+			3 => user.list_transaction_keys(),
+			4 => break,
+			_ => println!("Invalid"),
+		}
 	}
+
 }
+
 
 
 
 
 pub fn execute_command(collection: &Collection, command: Commands) {
+	match command {
+		Commands::Create(name) => {
+			let mut new_user = User::new(name);
+			start_user_session(&mut new_user);
 
+		},
+		Commands::Load(name) => {
+			let mut user = storage::load_user(name,collection);
+			start_user_session(&mut user)
+		},
+		Commands::Delete(name) => {
+			storage::delete_user(name, collection);
+		},
+		Commands::Quit => {
+			process::exit(0);
+		},
+		Commands::Invalid => println!("Invalid Command"),
+	}
 }

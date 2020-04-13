@@ -4,7 +4,6 @@ use bson;
 use bson::{doc,Bson};
 use mongodb::options::{FindOneAndDeleteOptions,FindOneOptions};
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
 use ed25519_dalek::{Keypair,SECRET_KEY_LENGTH};
 use super::account_manager::account_user::User;
 use super::key_manager::key_generator;

@@ -1,5 +1,5 @@
 use rand::rngs::OsRng;
-use ed25519_dalek::{Keypair,SecretKey,PublicKey,Signature};
+use ed25519_dalek::{Keypair,SecretKey,PublicKey};
 
 
 

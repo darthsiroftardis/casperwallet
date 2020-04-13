@@ -1,5 +1,4 @@
 use ed25519_dalek::Keypair;
-use serde::{Serialize,Deserialize};
 use std::collections::HashMap;
 use super::key_manager::key_generator;
 
@@ -29,7 +28,8 @@ impl User {
 	pub fn list_transaction_keys(&self) {
 		for (name,pair) in &self.transaction_keypairs {
 			println!("{:?}", name);
-			println!("{:?}", pair);
+			println!("{:?}", hex::encode(pair.secret.to_bytes()));
+			println!("{:?}", hex::encode(pair.public.to_bytes()));
 		}
 	}	
 
