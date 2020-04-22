@@ -17,9 +17,22 @@ fn main() {
 			Err(_e) => 0,
 		};
 		let command = match user_option {
-			1 => Commands::Create(String::from("Bob")),
-			2 => Commands::Load(String::from("Bob")),
-			3 => Commands::Delete(String::from("Bob")),
+			1 => {
+				print!("Enter Name for User:");
+				let name = session_manager::grab_name_from_user();
+				Commands::Create(name)	
+			},
+			2 => {
+				print!("Enter Name for User:");
+				let name = session_manager::grab_name_from_user();
+				println!("{:?}", name);
+				Commands::Load(name)
+			},
+			3 => {
+				print!("Enter Name for User:");
+				let name = session_manager::grab_name_from_user();
+				Commands::Delete(name)
+			},
 			4 => Commands::Quit,
 			_ => Commands::Invalid,
 		};

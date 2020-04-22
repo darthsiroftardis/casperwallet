@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use super::key_manager::key_generator;
 
 
+
 pub struct User {
 	pub name: 					String,
 	pub account_keypair:		Keypair,
@@ -28,8 +29,8 @@ impl User {
 	pub fn list_transaction_keys(&self) {
 		for (name,pair) in &self.transaction_keypairs {
 			println!("{:?}", name);
-			println!("{:?}", hex::encode(pair.secret.to_bytes()));
-			println!("{:?}", hex::encode(pair.public.to_bytes()));
+			println!("Private:{:?}", hex::encode(pair.secret.to_bytes()));
+			println!("Public:{:?}", hex::encode(pair.public.to_bytes()));
 		}
 	}	
 

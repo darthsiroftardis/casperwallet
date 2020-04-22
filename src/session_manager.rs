@@ -18,6 +18,14 @@ pub enum UserCommands {
 }
 
 
+pub fn grab_name_from_user() -> String {
+	stdout().flush().unwrap();
+	let mut input = String::new();
+	stdin().read_line(&mut input).unwrap();
+	let user_input = input.trim();
+	user_input.to_string()
+}
+
 pub fn start_session() -> mongodb::Collection {
 	println!("Attempting to connect to database");
 	let mut client_options = match ClientOptions::parse("mongodb://localhost:27017") {
@@ -41,7 +49,7 @@ pub fn start_session() -> mongodb::Collection {
 }
 
 
-pub fn start_user_session(user: &mut User) {
+pub fn start_user_session(user: &mut User, collection: &Collection) {
 	loop {
 		println!("Started session for {}", user.name);
 		print!("Enter an option\n[1]Sign\n[2]Add transaction key\n[3]List transaction key\n[4]Return\n[Input]:");
@@ -55,7 +63,11 @@ pub fn start_user_session(user: &mut User) {
 		};
 		match user_option {
 			1 => println!("Signing"),
-			2 => user.create_new_transaction_key(String::from("NewKey")),
+			2 => {  
+					print!("Enter Key name");
+					user.create_new_transaction_key(grab_name_from_user()); 
+					storage::update_user(&user, collection);
+				 },
 			3 => user.list_transaction_keys(),
 			4 => break,
 			_ => println!("Invalid"),
@@ -65,19 +77,17 @@ pub fn start_user_session(user: &mut User) {
 }
 
 
-
-
-
 pub fn execute_command(collection: &Collection, command: Commands) {
 	match command {
 		Commands::Create(name) => {
 			let mut new_user = User::new(name);
-			start_user_session(&mut new_user);
+			storage::store_user(&new_user,collection);
+			start_user_session(&mut new_user,collection);
 
 		},
 		Commands::Load(name) => {
 			let mut user = storage::load_user(name,collection);
-			start_user_session(&mut user)
+			start_user_session(&mut user,collection)
 		},
 		Commands::Delete(name) => {
 			storage::delete_user(name, collection);

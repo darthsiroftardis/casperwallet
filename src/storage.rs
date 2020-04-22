@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use mongodb::Collection;
 use bson;
 use bson::{doc,Bson};
-use mongodb::options::{FindOneAndDeleteOptions,FindOneOptions};
+use mongodb::options::{FindOneAndDeleteOptions,FindOneOptions,FindOneAndReplaceOptions};
 use serde::{Deserialize, Serialize};
 use ed25519_dalek::{Keypair,SECRET_KEY_LENGTH};
 use super::account_manager::account_user::User;
@@ -18,7 +18,7 @@ pub struct UserEntry {
 
 impl UserEntry {
 	// add code here
-	pub fn new(user: User) -> UserEntry {
+	pub fn new(user: &User) -> UserEntry {
 	let mut transaction_secretkey_bytes: HashMap<String,[u8;SECRET_KEY_LENGTH]> = HashMap::new();
 	for (k,v) in &user.transaction_keypairs {
 		println!("{:?}", k.to_string());
@@ -40,7 +40,7 @@ impl UserEntry {
 			let key = key_generator::recover_keypair(v);
 			transaction_keypairs.insert(k.to_string(),key);
 		}
-		User{
+		User {
 			name,
 			account_keypair,
 			transaction_keypairs
@@ -50,7 +50,8 @@ impl UserEntry {
 
 
 
-pub fn store_user(user: &UserEntry, collection: &Collection) {
+pub fn store_user(user: &User, collection: &Collection) {
+	let user: UserEntry = UserEntry::new(user);
 	let name = user.name.clone();
 	let json_entry = match serde_json::to_string(&user) {
 		Ok(jstring) => jstring,
@@ -75,9 +76,13 @@ pub fn load_user(name: String, collection: &Collection) -> User{
 		Ok(document) => document,
 		Err(e) => panic!("{:?}", e),
 	};
-
+	println!("{:?}",document);
 	if let Some(user) = document.unwrap().get("data").and_then(Bson::as_str) {
-		let u: UserEntry = serde_json::from_str(user).unwrap();
+		println!("{:?}", user);
+		let u: UserEntry = match serde_json::from_str(user) {
+			Ok(ue) => ue,
+			Err(e) => panic!("{:?}",e),
+		};
 		UserEntry::recover_user(u)
 	} else {
 		panic!("Error in Deserialize");
@@ -86,6 +91,24 @@ pub fn load_user(name: String, collection: &Collection) -> User{
 
 
 
+pub fn update_user(user: &User, collection: &Collection) {
+	let filter = doc! {"name": user.name.clone() };
+	let user: UserEntry = UserEntry::new(user);
+	let name = user.name.clone();
+	let find_options = FindOneAndReplaceOptions::builder().build();
+	let json_entry = match serde_json::to_string(&user) {
+		Ok(js) => js,
+		Err(e) => panic!("{:?}", e),
+	};
+	let user_entry = doc! {
+		"name":name,
+		"data":json_entry
+	};
+	match collection.find_one_and_replace(filter,user_entry,find_options) {
+		Ok(doc) => println!("Updated user {:?}", doc),
+		Err(e) => panic!("{:?}", e),
+	}
+}
 
 
 pub fn delete_user(user_name: String, collection: &Collection) {
