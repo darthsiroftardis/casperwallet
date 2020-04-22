@@ -1,9 +1,14 @@
+//! # Session Manager
+
+//!	Library to manage all the interactive functions for user operations
+
 use mongodb::{Client, options::ClientOptions,Collection};
 use super::account_manager::account_user::User;
 use super::storage;
 use std::process;
 use std::io::{stdin,stdout,Write};
 
+/// All variants of the commands that are currently supported
 pub enum Commands {
 	Create(String),
 	Load(String),
@@ -12,12 +17,15 @@ pub enum Commands {
 	Invalid,
 }
 
+/// All variants of commands that can be supported within the session of a specific user
 pub enum UserCommands {
 	Sign,
 	AddTransactionKey(String),
 }
 
 
+
+/// A simple function to grab input from the user to name either a User or a TransactionKeypair
 pub fn grab_name_from_user() -> String {
 	stdout().flush().unwrap();
 	let mut input = String::new();
@@ -26,6 +34,7 @@ pub fn grab_name_from_user() -> String {
 	user_input.to_string()
 }
 
+/// Connect to the database and return a collection object to perform operations with relation to the database
 pub fn start_session() -> mongodb::Collection {
 	println!("Attempting to connect to database");
 	let mut client_options = match ClientOptions::parse("mongodb://localhost:27017") {
@@ -48,7 +57,7 @@ pub fn start_session() -> mongodb::Collection {
 	return collection;
 }
 
-
+/// Start a user session for a specific user, the commands available are determined by the UserCommand enums
 pub fn start_user_session(user: &mut User, collection: &Collection) {
 	loop {
 		println!("Started session for {}", user.name);
@@ -76,7 +85,8 @@ pub fn start_user_session(user: &mut User, collection: &Collection) {
 
 }
 
-
+/// Function to execute a specific operation
+/// The execution depends on the type command based on the variant of the Commands Enum
 pub fn execute_command(collection: &Collection, command: Commands) {
 	match command {
 		Commands::Create(name) => {

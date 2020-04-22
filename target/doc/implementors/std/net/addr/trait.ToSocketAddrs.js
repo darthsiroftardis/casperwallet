@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["mongodb"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/std/net/addr/trait.ToSocketAddrs.html\" title=\"trait std::net::addr::ToSocketAddrs\">ToSocketAddrs</a> for <a class=\"struct\" href=\"mongodb/options/struct.StreamAddress.html\" title=\"struct mongodb::options::StreamAddress\">StreamAddress</a>","synthetic":false,"types":["mongodb::client::options::StreamAddress"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

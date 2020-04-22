@@ -1,3 +1,6 @@
+//! # Storage
+//! Functions for all CRUD operations related to stored users
+
 use std::collections::HashMap;
 use mongodb::Collection;
 use bson;
@@ -7,7 +10,8 @@ use serde::{Deserialize, Serialize};
 use ed25519_dalek::{Keypair,SECRET_KEY_LENGTH};
 use super::account_manager::account_user::User;
 use super::key_manager::key_generator;
-
+/// # UserEntry
+/// The struct that serializes a typical User struct to ensure that the user can be entered into the database
 #[derive(Serialize, Deserialize, Debug)]
 pub struct UserEntry {
 	pub name:								String,
@@ -17,7 +21,12 @@ pub struct UserEntry {
 
 
 impl UserEntry {
-	// add code here
+	/// Create a new JSON serialize struct from a given user struct
+	/// # Examples
+	/// ```
+	/// let user: User = User::new(String::from("Marge"));
+	/// let user_entry: UserEntry = UserEntry::new(&user);
+	/// ```
 	pub fn new(user: &User) -> UserEntry {
 	let mut transaction_secretkey_bytes: HashMap<String,[u8;SECRET_KEY_LENGTH]> = HashMap::new();
 	for (k,v) in &user.transaction_keypairs {
@@ -32,6 +41,14 @@ impl UserEntry {
 		transaction_secretkey_bytes,
 	}
 }
+	/// Recover a User struct from a given UserEntry struct
+	/// # Examples
+	/// ```
+	/// let user: User = User::new(String::from("Lisa"));
+	/// let user_entry = UserEntry::new(&user);
+	/// let recovered_user = UserEntry::recover_entry(user_entry);
+	/// assert_equal!(user.name, recovered_user.name);
+	/// ```
 	pub fn recover_user(user_entry: UserEntry) -> User {
 		let name = user_entry.name.clone();
 		let account_keypair: Keypair = key_generator::recover_keypair(&user_entry.account_secretkey_bytes);
@@ -49,7 +66,8 @@ impl UserEntry {
 }
 
 
-
+/// Store a user by serializing into a JSON string that is entered into the database
+/// # Store User
 pub fn store_user(user: &User, collection: &Collection) {
 	let user: UserEntry = UserEntry::new(user);
 	let name = user.name.clone();
@@ -69,6 +87,8 @@ pub fn store_user(user: &User, collection: &Collection) {
 	}
 }
 
+/// Load a user from a database entry based on a filter created by the name of the user
+/// # Load User
 pub fn load_user(name: String, collection: &Collection) -> User{
 	let filter = doc! {"name":name};
 	let find_options = FindOneOptions::builder().build();
@@ -90,8 +110,10 @@ pub fn load_user(name: String, collection: &Collection) -> User{
 }
 
 
-
+/// Update the user if new transaction keys are added.
+/// # Update User
 pub fn update_user(user: &User, collection: &Collection) {
+	/// The function updates the user by executing an atomic swap.
 	let filter = doc! {"name": user.name.clone() };
 	let user: UserEntry = UserEntry::new(user);
 	let name = user.name.clone();
@@ -111,6 +133,7 @@ pub fn update_user(user: &User, collection: &Collection) {
 }
 
 
+/// Delete a user based on the user's name
 pub fn delete_user(user_name: String, collection: &Collection) {
 	let filter = doc!{"name": user_name};
 	let find_options = FindOneAndDeleteOptions::builder().build();

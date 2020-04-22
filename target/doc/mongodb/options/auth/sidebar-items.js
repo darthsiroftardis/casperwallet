@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["AuthMechanism","The authentication mechanisms supported by MongoDB."]],"struct":[["Credential","A struct containing authentication information."]]});
